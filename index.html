@@ -11,56 +11,12 @@
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
 
-  <style>
-    :root{
-      --bg-dark: #0f1724;     /* deep soft dark */
-      --panel: #0b1320;
-      --muted: #9aa4b2;
-      --accent: #7c3aed;      /* indigo-ish */
-      --accent-2: #60a5fa;    /* soft blue */
-      --gold: #FBAF28;
-    }
+  <!-- Custom Styles -->
+  <link href="styles.css" rel="stylesheet" />
 
-    /* Force dark background for whole document */
-    html.dark, body { background: var(--bg-dark); color: #e6eef8; }
+  
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
 
-    /* ---------- Top Scroll Progress Bar (dark) ---------- */
-    #scrollBar {
-      position: fixed; top: 0; left: 0; height: 4px; width: 0%;
-      z-index: 9999;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      box-shadow: 0 2px 8px rgba(2,6,23,0.6);
-    }
-
-    /* ---------- Fade-up animation ---------- */
-    .fade-up { opacity: 0; transform: translateY(18px); transition: all .72s cubic-bezier(.2,.9,.2,1); }
-    .fade-up.show { opacity: 1; transform: translateY(0); }
-
-    /* ---------- Header ---------- */
-    #header { background: linear-gradient(180deg, rgba(6,10,20,0.6), rgba(6,10,20,0.4)); border-bottom: 1px solid rgba(255,255,255,0.03); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: transform .28s ease, background .2s ease; z-index:9998; }
-    #header.hide { transform: translateY(-110%); }
-
-    /* ---------- Cards ---------- */
-    .card { background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.08)); border: 1px solid rgba(255,255,255,0.03); border-radius: 12px; }
-    .card-hover { transition: transform .28s ease, box-shadow .28s ease; }
-    .card-hover:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(2,6,23,0.6); }
-
-    /* ---------- Cursor (soft glow) ---------- */
-    .cursor-dot, .cursor-glow {
-      position: fixed; pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); transition: width .12s ease, height .12s ease, opacity .12s ease, transform .12s ease;
-    }
-    .cursor-dot { width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,0.95); box-shadow: 0 4px 14px rgba(124,58,237,0.18); }
-    .cursor-glow { width:56px; height:56px; border-radius:50%; background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, rgba(96,165,250,0.06) 40%, transparent 60%); opacity: .95; transition: transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s; }
-    .cursor-expand { transform: translate(-50%,-50%) scale(1.9); opacity: 1 !important; }
-
-    /* ---------- Small helpers ---------- */
-    .focus-ring:focus { outline: 3px solid rgba(124,58,237,0.12); outline-offset: 2px; }
-    a { color: inherit; }
-    img { max-width:100%; display:block; }
-
-    /* Responsive container widths */
-    .max-w-8xl { max-width: 1280px; margin-left:auto; margin-right:auto; }
-  </style>
 </head>
 
 <body class="antialiased text-gray-100">
@@ -426,114 +382,7 @@
   </footer>
 
   <!-- SCRIPTS -->
-  <script>
-    // Mobile nav toggle
-    const mobileToggle = document.getElementById('mobileToggle');
-    const mobileNav = document.getElementById('mobileNav');
-    mobileToggle && mobileToggle.addEventListener('click', () => mobileNav.classList.toggle('hidden'));
-
-    // Fade-in reveal
-    const appear = document.querySelectorAll('.fade-up');
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); });
-    }, { threshold: 0.18 });
-    appear.forEach(el => io.observe(el));
-
-    // Header hide on scroll
-    let lastScroll = 0;
-    const header = document.getElementById('header');
-    window.addEventListener('scroll', () => {
-      const current = window.scrollY;
-      if (current > lastScroll && current > 80) header.classList.add('hide');
-      else header.classList.remove('hide');
-      lastScroll = current <= 0 ? 0 : current;
-      updateScrollBar();
-    });
-
-    // Scroll top progress bar
-    function updateScrollBar() {
-      const d = document.documentElement;
-      const percent = (window.scrollY / (d.scrollHeight - d.clientHeight)) * 100;
-      document.getElementById('scrollBar').style.width = percent + '%';
-    }
-    window.addEventListener('resize', updateScrollBar);
-    updateScrollBar();
-
-    // Soft glow cursor
-    const cursorDot = document.getElementById('cursorDot');
-    const cursorGlow = document.getElementById('cursorGlow');
-    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-    let gx = mx, gy = my;
-    window.addEventListener('mousemove', (e) => {
-      mx = e.clientX; my = e.clientY;
-      cursorDot.style.left = mx + 'px';
-      cursorDot.style.top = my + 'px';
-      gx += (mx - gx) * 0.16;
-      gy += (my - gy) * 0.16;
-      cursorGlow.style.left = gx + 'px';
-      cursorGlow.style.top = gy + 'px';
-    });
-
-    // expand glow on interactive elements
-    const interactive = 'a, button, .card-hover, .focus-ring';
-    document.querySelectorAll(interactive).forEach(el => {
-      el.addEventListener('mouseenter', () => cursorGlow.classList.add('cursor-expand'));
-      el.addEventListener('mouseleave', () => cursorGlow.classList.remove('cursor-expand'));
-    });
-
-    // hide cursor on touch devices & keyboard navigation
-    if ('ontouchstart' in window || navigator.maxTouchPoints) {
-      cursorDot.style.display = 'none';
-      cursorGlow.style.display = 'none';
-    }
-    window.addEventListener('keydown', (e) => { if (e.key === 'Tab') { cursorDot.style.display='none'; cursorGlow.style.display='none'; } });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
-<script>
-emailjs.init("PUBLIC_KEY"); // Replace this
-
-document.getElementById("contactForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  // VALIDATION
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const message = document.getElementById("message").value.trim();
-
-  if (name.length < 3) {
-    alert("Please enter a valid name.");
-    return;
-  }
-
-  if (!email.includes("@") || !email.includes(".")) {
-    alert("Enter a valid email address.");
-    return;
-  }
-
-  if (message.length < 10) {
-    alert("Message must be at least 10 characters.");
-    return;
-  }
-
-  const templateParams = {
-    from_name: name,
-    email_id: email,
-    message: message,
-  };
-
-  emailjs.send("SERVICE_ID", "TEMPLATE_ID", templateParams)
-    .then(() => {
-      const popup = document.getElementById("successPopup");
-      popup.classList.remove("hidden");
-
-      setTimeout(() => popup.classList.add("hidden"), 3000);
-
-      document.getElementById("contactForm").reset();
-    })
-    .catch(() => alert("Error sending email. Try again later."));
-});
-</script>
+  <script src="scripts.js"></script>
 
 </body>
 </html>
